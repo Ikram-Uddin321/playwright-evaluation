@@ -1,4 +1,4 @@
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 
 export class EmployeeListPage {
     private readonly page: Page;
@@ -20,27 +20,39 @@ export class EmployeeListPage {
     }
 
     public async searchEmployee(employeeName: string): Promise<void> {
+
+        // Open field
         await this.employeeNameField.click();
 
-        await this.employeeNameField.clear();
+        // Fill properly (replaces clear + unstable typing)
+        await this.employeeNameField.fill(employeeName);
 
-        await this.employeeNameField.pressSequentially(employeeName);
+        // Wait for dropdown suggestions (important for CI)
+        const dropdown = this.page.locator('.oxd-autocomplete-dropdown');
 
-        await this.page.waitForTimeout(2000);
+        if (await dropdown.isVisible().catch(() => false)) {
+            await this.page.keyboard.press('ArrowDown');
+            await this.page.keyboard.press('Enter');
+        }
 
-        // Select autocomplete suggestion
-        await this.page.keyboard.press('ArrowDown');
-        await this.page.keyboard.press('Enter');
+        // Click search + wait for results
+        await Promise.all([
+            this.page.waitForResponse(res =>
+                res.url().includes('employee') && res.status() === 200
+            ).catch(() => {}),
+            this.searchButton.click()
+        ]);
 
-        await this.page.waitForTimeout(1000);
-
-        await this.searchButton.click();
-
-        await this.page.waitForTimeout(3000);
+        // Ensure table is loaded
+        await this.tableRows.first().waitFor({ state: 'visible' });
     }
 
     public async getRowCount(): Promise<number> {
-        const count: number = await this.tableRows.count();
+
+        // Ensure table exists before counting
+        await this.tableRows.first().waitFor({ state: 'visible' });
+
+        const count = await this.tableRows.count();
 
         console.log(`Row Count: ${count}`);
 
@@ -48,21 +60,21 @@ export class EmployeeListPage {
     }
 
     public async getEmployeeNames(): Promise<string[]> {
+
+        await this.tableRows.first().waitFor({ state: 'visible' });
+
         const names: string[] = [];
+        const count = await this.tableRows.count();
 
-        const count: number = await this.tableRows.count();
+        for (let i = 0; i < count; i++) {
 
-        for (let i: number = 0; i < count; i++) {
-            const name: string =
-                (
-                    await this.tableRows
-                        .nth(i)
-                        .locator('div[role="cell"]')
-                        .nth(2)
-                        .textContent()
-                )?.trim() || '';
+            const name = await this.tableRows
+                .nth(i)
+                .locator('div[role="cell"]')
+                .nth(2)
+                .textContent();
 
-            names.push(name);
+            names.push(name?.trim() || '');
         }
 
         console.log('Employee Names:', names);

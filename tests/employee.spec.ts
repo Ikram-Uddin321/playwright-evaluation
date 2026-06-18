@@ -7,28 +7,39 @@ test('Search Employee and Validate Rows', async ({ page }) => {
 
     test.setTimeout(60000);
 
-    const loginPage: LoginPage = new LoginPage(page);
-    const dashboardPage: DashboardPage = new DashboardPage(page);
-    const employeeListPage: EmployeeListPage =
-        new EmployeeListPage(page);
+    const loginPage = new LoginPage(page);
+    const dashboardPage = new DashboardPage(page);
+    const employeeListPage = new EmployeeListPage(page);
 
+    // Navigate to Login Page
     await loginPage.navigate();
 
+    // Login
     await loginPage.login(
         'Admin',
         'admin123'
     );
 
+    // Navigate to PIM
     await dashboardPage.clickPIM();
 
-    await employeeListPage.searchEmployee('Ravi M B');
+    // Search Existing Employee
+    await employeeListPage.searchEmployee(
+        'Baba Dook'
+    );
 
-    const rowCount: number =
+    // Validate Row Count
+    const rowCount =
         await employeeListPage.getRowCount();
+
+    console.log(
+        `Row Count After Search: ${rowCount}`
+    );
 
     expect(rowCount).toBeGreaterThan(0);
 
-    const employeeNames: string[] =
+    // Validate Employee Names
+    const employeeNames =
         await employeeListPage.getEmployeeNames();
 
     expect(employeeNames.length)
@@ -37,4 +48,9 @@ test('Search Employee and Validate Rows', async ({ page }) => {
     for (const name of employeeNames) {
         expect(name.trim()).not.toBe('');
     }
+
+    console.log(
+        'Employee Names:',
+        employeeNames
+    );
 });
