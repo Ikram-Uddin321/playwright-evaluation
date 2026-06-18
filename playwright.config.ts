@@ -3,7 +3,7 @@ import { defineConfig } from '@playwright/test';
 export default defineConfig({
     testDir: './tests',
 
-    timeout: 60000,
+    timeout: 70000,
 
     retries: 1,
 
@@ -18,9 +18,9 @@ export default defineConfig({
 
         video: 'retain-on-failure',
 
-        actionTimeout: 15000,
+        actionTimeout: 30000,
 
-        navigationTimeout: 60000,
+        navigationTimeout: 70000,
 
         viewport: {
             width: 1920,

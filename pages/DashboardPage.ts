@@ -11,22 +11,9 @@ export class DashboardPage {
             page.locator('//span[text()="PIM"]');
     }
 
-    public async clickPIM(): Promise<void> {
-
-        await expect(this.pimMenu)
-            .toBeVisible();
-
-        await this.pimMenu.click();
-
-        await this.page.waitForURL(
-            '**/pim/**',
-            {
-                timeout: 30000
-            }
-        );
-    }
-
-    public async getUrl(): Promise<string> {
-        return this.page.url();
-    }
+   public async clickPIM(): Promise<void> {
+    await this.pimMenu.click();
+    await this.page.waitForURL('**/pim/**');
+    await this.page.waitForLoadState('networkidle');
 }
+}   

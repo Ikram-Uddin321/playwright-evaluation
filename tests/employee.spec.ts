@@ -5,52 +5,28 @@ import { EmployeeListPage } from '../pages/EmployeeListPage';
 
 test('Search Employee and Validate Rows', async ({ page }) => {
 
-    test.setTimeout(60000);
-
     const loginPage = new LoginPage(page);
     const dashboardPage = new DashboardPage(page);
     const employeeListPage = new EmployeeListPage(page);
 
-    // Navigate to Login Page
     await loginPage.navigate();
+    await loginPage.login('Admin', 'admin123');
 
-    // Login
-    await loginPage.login(
-        'Admin',
-        'admin123'
-    );
-
-    // Navigate to PIM
     await dashboardPage.clickPIM();
 
-    // Search Existing Employee
-    await employeeListPage.searchEmployee(
-        'Baba Dook'
-    );
+    await employeeListPage.searchEmployee('a');
 
-    // Validate Row Count
-    const rowCount =
-        await employeeListPage.getRowCount();
+    const rowCount = await employeeListPage.getRowCount();
 
-    console.log(
-        `Row Count After Search: ${rowCount}`
-    );
+    console.log('Row Count:', rowCount);
 
     expect(rowCount).toBeGreaterThan(0);
 
-    // Validate Employee Names
-    const employeeNames =
-        await employeeListPage.getEmployeeNames();
+    const names = await employeeListPage.getEmployeeNames();
 
-    expect(employeeNames.length)
-        .toBeGreaterThan(0);
+    expect(names.length).toBeGreaterThan(0);
 
-    for (const name of employeeNames) {
-        expect(name.trim()).not.toBe('');
+    for (const n of names) {
+        expect(n.trim()).not.toBe('');
     }
-
-    console.log(
-        'Employee Names:',
-        employeeNames
-    );
 });

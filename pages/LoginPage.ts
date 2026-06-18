@@ -17,35 +17,41 @@ export class LoginPage {
         this.errorMessage = page.locator('.oxd-alert-content-text');
     }
 
+    // Navigate to login page
     async navigate(): Promise<void> {
         await this.page.goto(
             'https://opensource-demo.orangehrmlive.com/web/index.php/auth/login',
             {
-                waitUntil: 'networkidle',
+                waitUntil: 'domcontentloaded',
                 timeout: 60000
             }
         );
 
-        await this.usernameInput.waitFor({
-            state: 'visible'
-        });
+        await this.usernameInput.waitFor({ state: 'visible' });
     }
 
-    async login(
-        username: string,
-        password: string
-    ): Promise<void> {
+    // LOGIN (works for BOTH success & failed cases)
+    async login(username: string, password: string): Promise<void> {
 
         await this.usernameInput.fill(username);
         await this.passwordInput.fill(password);
 
-        await Promise.all([
-            this.page.waitForURL('**/dashboard/**'),
-            this.loginButton.click()
-        ]);
+        await this.loginButton.click();
     }
 
+    // ERROR MESSAGE (failed login only)
     async getErrorMessage(): Promise<string> {
-        return await this.errorMessage.textContent() ?? '';
-    }
+
+    const errorLocator = this.page.locator(
+        '.oxd-alert-content-text, .oxd-text.oxd-text--p, .oxd-alert'
+    );
+
+    await errorLocator.first().waitFor({ state: 'visible', timeout: 15000 });
+
+    const text = await errorLocator.first().textContent();
+
+    console.log('CAPTURED ERROR:', text);
+
+    return text?.trim() || '';
+}
 }
