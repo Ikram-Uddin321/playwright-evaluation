@@ -8,4 +8,9 @@
   npm run smoke
   npm run report
   
+# Assignment-2
+## Setup
+cd Assignment-2
+npm run regression
+npm run report 
 
