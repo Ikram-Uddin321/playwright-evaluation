@@ -9,8 +9,14 @@
   npm run report
   
 # Assignment-2
-## Setup
+
+## 📦 Setup
+
+* Clone the repo
+
+```bash
 cd Assignment-2
 npm run regression
-npm run report 
+npm run report
+```
 
